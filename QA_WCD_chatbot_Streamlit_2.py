@@ -1,5 +1,5 @@
 
-from data_pipeline import Create_documents, embed_chunks
+from data_pipeline import load_documents
 import streamlit as st
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import StrOutputParser
@@ -14,19 +14,11 @@ import numpy as np
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
-from huggingface_hub import HfApi, HfFolder
 from langchain.retrievers import BM25Retriever, EnsembleRetriever
 from langchain.retrievers.document_compressors import EmbeddingsFilter,LLMChainExtractor
 from langchain.retrievers import ContextualCompressionRetriever
-from langchain.document_loaders import WebBaseLoader, HuggingFaceDatasetLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
 
 import os
-import torch
-from dotenv import load_dotenv, find_dotenv
-from langchain_community.llms import HuggingFaceEndpoint, HuggingFaceHub
 from langchain import HuggingFacePipeline
 from langchain.vectorstores import Chroma
 
@@ -35,16 +27,6 @@ from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain.chains import RetrievalQA
 from langchain.chains.retrieval_qa.base import RetrievalQA
 
-from transformers import AutoModel, AutoTokenizer, AutoModelForQuestionAnswering, AutoModelForSequenceClassification , pipeline
-from sentence_transformers import SentenceTransformer
-
-
-@st.cache_resource
-def load_documents():
-    output = Create_documents()  # Replace with your actual function
-    return output
-
-###-----------------------------------------------------------
 
 def Find_all_hierarchical_headers_path():
     hierarchical_headers = []
@@ -53,50 +35,13 @@ def Find_all_hierarchical_headers_path():
        hierarchical_headers.append(doc.metadata['hierarchical headers path'])
     return hierarchical_headers
 
+
 @st.cache_resource
 def load_all_hierarchical_headers_path():
     output = Find_all_hierarchical_headers_path()  # Replace with your actual function
     return output
 ###-----------------------------------------------------------
 
-def Create_chunks():
-    # Create an instance of the RecursiveCharacterTextSplitter class with specific parameters.
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=300)
-
-    # 'data' holds the text you want to split, split the text into documents using the text splitter.
-    documents= load_documents()
-    chunks = text_splitter.split_documents(documents)
-    #print(len(chunks))
-    return chunks
-###-----------------------------------------------------------
-
-###-----------------------------------------------------------
-
-def compute_db_vector_store():
-    chunks =  Create_chunks()
-    embeddings = embed_chunks()
-    
-    # Your actual computation or loading code
-    persist_directory="./courses.db"    # MiniLM
-    #persist_directory="./courses_mpn.db" # mpnet
-    
-    db = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        persist_directory=persist_directory
-    )
-
-    #print(db._collection.count())
-    #print(db._collection.get().keys())
-    #print(db.get('embedding')["embeddings"])
-    #print((len(db.get(include=['embeddings'])['embeddings'][10])))
-    return db
-
-@st.cache_resource
-def load_db_vector_store():
-    # Your code to determine the db vector store and get the output
-    output = compute_db_vector_store()  # Replace with your actual function
-    return output
 ###-----------------------------------------------------------
 
 def Setup_llm():

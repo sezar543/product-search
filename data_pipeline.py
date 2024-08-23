@@ -1,9 +1,12 @@
 from bs4 import BeautifulSoup
 from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 import pandas as pd
 from langchain.schema import Document
 from langchain_core.documents.base import Document
 import requests
+
+from vector_database import VectorDatabase
 
 
 def embed_chunks():
@@ -40,7 +43,6 @@ def Extract_urls(sitemap_url):
 
    # Store the links in a variable
    return links
-
 
 ###-----------------------------------------------------------
 def load_all_urls():
@@ -390,4 +392,40 @@ def Create_documents():
             #print(doc)
             #print("--------")
     return documents
-    
+
+
+def load_documents():
+    output = Create_documents()  # Replace with your actual function
+    return output
+
+
+def Create_chunks():
+    # Create an instance of the RecursiveCharacterTextSplitter class with specific parameters.
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=300)
+
+    # 'data' holds the text you want to split, split the text into documents using the text splitter.
+    documents= load_documents()
+    chunks = text_splitter.split_documents(documents)
+    return chunks
+
+
+###-----------------------------------------------------------
+# Above is all the methods required for setting up the database
+# Can really customize the bottom - add in any embedding
+#TODO: complete the below
+def get_connection_string():
+    pass
+
+def setup_database():
+    embedding = embed_chunks()
+    connection_string = get_connection_string()
+    db = VectorDatabase(embedding = embedding, connection_string = connection_string)
+    return db
+
+###------------------------------------------------------------
+# Below is the methods needed to load documents and add it to the vector databse
+# TODO: complete the below method
+
+def add_documents_to_database(db: VectorDatabase):
+    documents = load_documents()
+    return db.add_documents(documents)
