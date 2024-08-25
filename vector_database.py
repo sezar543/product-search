@@ -16,11 +16,29 @@ class VectorDatabase():
     
 
   def get_embeddings(self):
-    embedding = HuggingFaceEmbeddings()
-    return embedding
+    # Define the path to the pre-trained model you want to use
+    modelPath = "sentence-transformers/all-MiniLM-L6-v2"   #384
+    #modelPath = "sentence-transformers/all-mpnet-base-v2"   #768
+
+    # Create a dictionary with model configuration options, specifying to use the CPU for computations
+    model_kwargs = {'device': 'cpu'}
+
+    # Create a dictionary with encoding options, specifically setting 'normalize_embeddings' to True
+    encode_kwargs = {'normalize_embeddings': True}
+
+    # Initialize an instance of HuggingFaceEmbeddings with the specified parameters
+    embeddings = HuggingFaceEmbeddings(
+         model_name=modelPath,     # Provide the pre-trained model's path
+         model_kwargs=model_kwargs, # Pass the model configuration options
+         encode_kwargs=encode_kwargs # Pass the encoding options
+            )
+    return embeddings
   
   def add_documents(self, documents):
     return self.db.add_documents(documents)
+  
+  def as_retriever(self, **kwargs):
+    return self.db.as_retriever(**kwargs)
 
 
   def invoke(self, query, search_type, **kwargs):

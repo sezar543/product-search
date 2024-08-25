@@ -416,11 +416,8 @@ def Create_chunks():
 def get_connection_string():
     pass
 
-def setup_database():
-    embedding = embed_chunks()
-    connection_string = get_connection_string()
-    db = VectorDatabase(embedding = embedding, connection_string = connection_string)
-    return db
+def get_test_connection_string():
+    pass
 
 ###------------------------------------------------------------
 # Below is the methods needed to load documents and add it to the vector databse
@@ -429,3 +426,13 @@ def setup_database():
 def add_documents_to_database(db: VectorDatabase):
     documents = load_documents()
     return db.add_documents(documents)
+
+if __name__ == '__main__':
+    embeddings = embed_chunks()
+    # connection_string = get_connection_string()
+    connection_string = get_test_connection_string()
+    #Assumes that a database has already been created 
+    db = VectorDatabase(embedding=embeddings, connection_string=connection_string)
+
+    chunks = Create_chunks()
+    db.add_documents(chunks)

@@ -1,31 +1,24 @@
 
-from data_pipeline import load_documents
+from data_pipeline import embed_chunks, get_connection_string, load_documents
 import streamlit as st
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import StrOutputParser
-from langchain.schema.runnable import Runnable
 from langchain.schema.runnable.config import RunnableConfig
 from langchain.llms import HuggingFaceHub
 import asyncio
-import json
-
-import re
 import numpy as np
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from langchain.retrievers import BM25Retriever, EnsembleRetriever
-from langchain.retrievers.document_compressors import EmbeddingsFilter,LLMChainExtractor
-from langchain.retrievers import ContextualCompressionRetriever
 
 import os
-from langchain import HuggingFacePipeline
-from langchain.vectorstores import Chroma
 
-from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain.chains import RetrievalQA
 from langchain.chains.retrieval_qa.base import RetrievalQA
+
+from vector_database import VectorDatabase
 
 
 def Find_all_hierarchical_headers_path():
@@ -141,6 +134,13 @@ def fined_closest_header(query):
     #print(type(closest_header),closest_header)
     return closest_header
 
+@st.cache_resource
+def setup_database():
+    embedding = embed_chunks()
+    connection_string = get_connection_string()
+    db = VectorDatabase(embedding = embedding, connection_string = connection_string)
+    return db
+
 ###-----------------------------------------------------------
 def qa_ENSEM_Run(query):
     #Strictly avoid adding any description to the output and make sure that the output is not enclosed with any extra delimiters. 
@@ -206,8 +206,9 @@ def qa_ENSEM_Run(query):
         template = template
     )
 
+    #We want to get the documents from the database not testing 
     documents= load_documents()
-    db = load_db_vector_store() # use only outputs
+    db = setup_database() # use only outputs
     closest_header = fined_closest_header(query)
     print(closest_header)
 
@@ -216,6 +217,8 @@ def qa_ENSEM_Run(query):
     sim1_retriever=db.as_retriever(search_kwargs={"k": 2}, search_type = 'similarity')
     mmr3_retriever=db.as_retriever(search_kwargs={'k': k,'filter': {'hierarchical headers path': f'{closest_header}'}}, search_type = 'mmr')
     
+    #Below is a bit wierd, since we wanna get documents from the database
+    #Why not get the below from as_retriever method
     bm25_retriever = BM25Retriever.from_documents(documents)
     bm25_retriever.k = 4
     #retriver_context= mmr1_retriever+sim1_retriever+mmr3_retriever+bm25_retriever
