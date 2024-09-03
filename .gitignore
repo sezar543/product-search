@@ -1,3 +1,4 @@
 /projEnv
 /model/__pycache__
 model.pkl
+.env

@@ -1,16 +1,19 @@
 
-from data_pipeline import embed_chunks, get_connection_string, load_documents
+from dotenv import load_dotenv
+from data_pipeline import embed_chunks, get_connection_string, get_test_connection_string, load_documents
 import streamlit as st
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema import StrOutputParser
-from langchain.schema.runnable.config import RunnableConfig
-from langchain.llms import HuggingFaceHub
+from langchain_core.prompts.chat import ChatPromptTemplate
+from langchain_core.output_parsers.string import StrOutputParser
+from langchain_core.runnables.config import RunnableConfig
+#Below is deprecated, need to use langchain_huggingface.llms.huggingface_endpoint.HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEndpoint
 import asyncio
 import numpy as np
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from langchain.retrievers import BM25Retriever, EnsembleRetriever
+from langchain.retrievers import EnsembleRetriever
+from langchain_community.retrievers import BM25Retriever
 
 import os
 
@@ -21,17 +24,17 @@ from langchain.chains.retrieval_qa.base import RetrievalQA
 from vector_database import VectorDatabase
 
 
-def Find_all_hierarchical_headers_path():
+def Find_all_hierarchical_headers_path(documents = None):
     hierarchical_headers = []
-    documents= load_documents()
+    if not documents:
+        documents = load_documents()
     for doc in documents:
        hierarchical_headers.append(doc.metadata['hierarchical headers path'])
     return hierarchical_headers
 
 
-@st.cache_resource
-def load_all_hierarchical_headers_path():
-    output = Find_all_hierarchical_headers_path()  # Replace with your actual function
+def load_all_hierarchical_headers_path(documents = None):
+    output = Find_all_hierarchical_headers_path(documents)  # Replace with your actual function
     return output
 ###-----------------------------------------------------------
 
@@ -42,15 +45,12 @@ def Setup_llm():
     load_dotenv('TokHap.env')
     HUGGINGFACEHUB_API_TOKEN = os.environ["HUGGINGFACEHUB_API_TOKEN"]
 
-    model_name = 'mistralai/Mistral-7B-Instruct-v0.2'
-
     # Set up the LLM from Hugging Face
     repo_id = 'mistralai/Mistral-7B-Instruct-v0.2'
-    mistral_llm = HuggingFaceHub(repo_id=repo_id, model_kwargs={"temperature": 0.1, "max_new_tokens": 500})
+    mistral_llm = HuggingFaceEndpoint(repo_id=repo_id, huggingfacehub_api_token = HUGGINGFACEHUB_API_TOKEN, temperature = 0.1, max_new_tokens=500)
     llm = mistral_llm
     return llm
 
-@st.cache_resource
 def load_llm():
     output = Setup_llm()  # Replace with your actual function
     return output
@@ -103,7 +103,7 @@ def contains_word(query, word):
         return False
 ###-----------------------------------------------------------
 
-def fined_closest_header(query):
+def fined_closest_header(query, documents = None):
 
     if contains_word(query, "tuition"):
 
@@ -114,7 +114,7 @@ def fined_closest_header(query):
             'This content belongs to the following hierarchical headers of the tuition path; H1: Machine Learning Engineering Bootcamp - WeCloudData -> H5: Tuition Fee']
 
     # List of headers
-    headers = load_all_hierarchical_headers_path()
+    headers = load_all_hierarchical_headers_path(documents)
 
     # Combine headers and query into a single list
     docs = headers + [query]
@@ -134,18 +134,16 @@ def fined_closest_header(query):
     #print(type(closest_header),closest_header)
     return closest_header
 
-@st.cache_resource
-def setup_database():
+def setup_database(test = True):
     embedding = embed_chunks()
-    connection_string = get_connection_string()
+    connection_string = get_test_connection_string() if test else get_connection_string()
     db = VectorDatabase(embedding = embedding, connection_string = connection_string)
     return db
 
 ###-----------------------------------------------------------
-def qa_ENSEM_Run(query):
+def qa_ENSEM_Run(query, llm, db):
     #Strictly avoid adding any description to the output and make sure that the output is not enclosed with any extra delimiters. 
-    llm=load_llm()
-
+    # llm = load_llm()
     # Define the base template
     template = """You are an intelligent chatbot. you are called "Weclouddata Chatbot"
     Based on the provided context and source documents, please generate a detailed and thorough answer to the question.
@@ -207,20 +205,21 @@ def qa_ENSEM_Run(query):
     )
 
     #We want to get the documents from the database not testing 
-    documents= load_documents()
-    db = setup_database() # use only outputs
-    closest_header = fined_closest_header(query)
+    documents= db.get_by_ids(["*"])
+    #replacing below with adding database in the arguments
+    # db = setup_database() 
+    closest_header = fined_closest_header(query, documents=documents)
     print(closest_header)
 
     k=6
     mmr1_retriever=db.as_retriever(search_kwargs={"k": k}, search_type = 'mmr')
     sim1_retriever=db.as_retriever(search_kwargs={"k": 2}, search_type = 'similarity')
     mmr3_retriever=db.as_retriever(search_kwargs={'k': k,'filter': {'hierarchical headers path': f'{closest_header}'}}, search_type = 'mmr')
-    
+    bm25_retriever=db.as_retriever(search_kwargs={"k": 4}, search_type = 'bm25')
     #Below is a bit wierd, since we wanna get documents from the database
     #Why not get the below from as_retriever method
-    bm25_retriever = BM25Retriever.from_documents(documents)
-    bm25_retriever.k = 4
+    #bm25_retriever = BM25Retriever.from_documents(documents)
+    #bm25_retriever.k = 4
     #retriver_context= mmr1_retriever+sim1_retriever+mmr3_retriever+bm25_retriever
 
     ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, mmr1_retriever, sim1_retriever,mmr3_retriever], weights=[0.5,0.5,0.5,0.5])
@@ -397,8 +396,4 @@ def main():
         store_userinfo(user_contact)
         st.success("Thank you for your info!")
 
-             
-
-if __name__ == "__main__":
-    main()
 

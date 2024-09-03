@@ -1,11 +1,10 @@
 from bs4 import BeautifulSoup
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from sqlalchemy import create_engine
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pandas as pd
-from langchain.schema import Document
-from langchain_core.documents.base import Document
+from langchain_core.documents import Document
 import requests
-
 from vector_database import VectorDatabase
 
 
@@ -417,7 +416,8 @@ def get_connection_string():
     pass
 
 def get_test_connection_string():
-    pass
+    connection = create_engine("postgresql+psycopg://wcd:chatbot@localhost:5432/vector_db", echo=True)
+    return connection
 
 ###------------------------------------------------------------
 # Below is the methods needed to load documents and add it to the vector databse

@@ -1,5 +1,11 @@
+import os
+from dotenv import load_dotenv
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_postgres.vectorstores import PGVector
+
+
+load_dotenv()
+COLLECTION_NAME = os.environ["COLLECTION_NAME"]
 
 class VectorDatabase():
   def __init__(self, embedding = None, connection_string = None) -> None:
@@ -9,7 +15,7 @@ class VectorDatabase():
     else:
       self.embedding = self.get_embeddings()
     
-    self.db = PGVector(embeddings=self.embedding, connection=self.connection_string)
+    self.db = PGVector(embeddings=self.embedding, connection=self.connection_string, collection_name=COLLECTION_NAME)
   
   def get_db(self):
     return self.db
@@ -43,3 +49,6 @@ class VectorDatabase():
 
   def invoke(self, query, search_type, **kwargs):
     return self.db.search(query=query, search_type=search_type, **kwargs)
+  
+  def get_collection(self):
+    return self.db.get_collection(self.connection_string)
