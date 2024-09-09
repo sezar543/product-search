@@ -38,7 +38,7 @@ def load_all_hierarchical_headers_path(documents = None):
 
 def Setup_llm():
     # Load environment variables
-    load_dotenv('TokHap.env')
+    load_dotenv('.env')
     HUGGINGFACEHUB_API_TOKEN = os.environ["HUGGINGFACEHUB_API_TOKEN"]
 
     # Set up the LLM from Hugging Face

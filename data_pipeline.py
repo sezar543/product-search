@@ -1,6 +1,4 @@
 from bs4 import BeautifulSoup
-from langchain_postgres import PGVector
-from sqlalchemy import create_engine
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pandas as pd
@@ -60,11 +58,13 @@ def load_all_urls():
     #print('list_URLsforXMLs=',list_URLsforXMLs)  #24 list of url related to 24 xmls
 
     # courses and course-package
-    #all_urls=list_URLsforXMLs[4]+ list_URLsforXMLs[8]
+    #Below is for testing 
+    all_urls=list_URLsforXMLs[4]+ list_URLsforXMLs[8]
 
-    all_urls=[]
-    for URLsforXML in list_URLsforXMLs:
-       all_urls += URLsforXML
+    #Uncomment below for use in production
+    #all_urls=[]
+    #for URLsforXML in list_URLsforXMLs:
+       #all_urls += URLsforXML
 
     print('all_urls = ',all_urls)
     print(len(all_urls),"\n")
@@ -81,6 +81,7 @@ def load_all_urls():
 ###-----------------------------------------------------------
 def load_clean_text_from_url(url):
   # Send a GET request to the webpage
+  #Makes the pipeline take way too long, so in testing, use the truncated version
   response = requests.get(url)
 
   # Check if the request was successful

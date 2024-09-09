@@ -1,4 +1,5 @@
 
+import requests
 from QA_WCD_chatbot_Streamlit_2 import Setup_llm, qa_ENSEM_Run
 
 
@@ -11,6 +12,7 @@ from langchain_core.runnables.config import RunnableConfig
 
 import asyncio
 
+backend_url = "http://localhost:8000/chatbot"
 
 def store_userinfo(user_contact):
     # Check if 'feedback' already exists in session_state
@@ -93,25 +95,26 @@ def main():
 
         with st.spinner("Generating response..."):
             response_placeholder = st.empty()
-
             # Generate the response
-            async def generate_response():
-                msg = ""
-                async for response in st.session_state.runnable.astream(
-                    {"question": question},
-                    config=RunnableConfig(callbacks=[]),
-                ):
+            async def generate_response(response_placeholder, question):
+              msg = ""
+              async for response in st.session_state.runnable.astream(
+                  {"question": question},
+                  config=RunnableConfig(callbacks=[]),
+                  ):
 
-                    response_Ens = qa_ENSEM_Run(question)
-                    response=response_Ens.split("Answer:")[1]
-                    msg += response
-                    response_placeholder.write(msg)
+                response = requests.get(url=backend_url, params={'query': question})
+                response_Ens = response.json()["response"]
+                #response_Ens = qa_ENSEM_Run(question)
+                response=response_Ens.split("Answer:")[1]
+                msg += response
+                response_placeholder.write(msg)
 
-                # Update the history after the response is generated
-                # update_history(question, msg)
+              # Update the history after the response is generated
+              # update_history(question, msg)
 
             #Use asyncio to run the async function
-            asyncio.run(generate_response())
+            asyncio.run(generate_response(response_placeholder=response_placeholder, question=question))
 
 
     # Feedback section
