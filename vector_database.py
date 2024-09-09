@@ -2,13 +2,15 @@ import os
 from dotenv import load_dotenv
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_postgres.vectorstores import PGVector
-
+import psycopg2
+from langchain_core.documents.base import Document
 
 load_dotenv()
 COLLECTION_NAME = os.environ["COLLECTION_NAME"]
 
 class VectorDatabase():
-  def __init__(self, embedding = None, connection_string = None) -> None:
+  def __init__(self, embedding = None, connection_string = None, collection_name="") -> None:
+    self.collection_name = collection_name
     self.connection_string = connection_string
     if embedding:
       self.embedding = embedding
@@ -16,6 +18,7 @@ class VectorDatabase():
       self.embedding = self.get_embeddings()
     
     self.db = PGVector(embeddings=self.embedding, connection=self.connection_string, collection_name=COLLECTION_NAME)
+    self.documents = None
   
   def get_db(self):
     return self.db
@@ -50,5 +53,9 @@ class VectorDatabase():
   def invoke(self, query, search_type, **kwargs):
     return self.db.search(query=query, search_type=search_type, **kwargs)
   
-  def get_collection(self):
-    return self.db.get_collection(self.connection_string)
+  def get_all_documents(self):
+    with psycopg2.connect(self.connection_string) as conn:
+      curr = conn.cursor()
+      table_name = f"{self.collection_name}_langchain_pg_embedding" if self.collection_name else "langchain_pg_embedding"
+      curr.execute(f"SELECT document, cmetadata FROM {table_name};")
+      return [Document(page_content=text, metadata = metadata) for text, metadata in curr.fetchall()]

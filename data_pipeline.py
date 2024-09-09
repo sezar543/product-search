@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from langchain_postgres import PGVector
 from sqlalchemy import create_engine
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -59,14 +60,14 @@ def load_all_urls():
     #print('list_URLsforXMLs=',list_URLsforXMLs)  #24 list of url related to 24 xmls
 
     # courses and course-package
-    all_urls=list_URLsforXMLs[4]+ list_URLsforXMLs[8]
+    #all_urls=list_URLsforXMLs[4]+ list_URLsforXMLs[8]
 
-    #all_urls=[]
-    #for URLsforXML in list_URLsforXMLs:
-    #    all_urls += URLsforXML
+    all_urls=[]
+    for URLsforXML in list_URLsforXMLs:
+       all_urls += URLsforXML
 
-    #print('all_urls = ',all_urls)
-    #print(len(all_urls),"\n")
+    print('all_urls = ',all_urls)
+    print(len(all_urls),"\n")
 
     def filter_image_urls(urls):
         filtered_urls = [url for url in urls if not (url.endswith('.jpeg') or url.endswith('.png') or url.endswith('.webp') or url.endswith('.gif') or url.endswith('.svg') or  url.endswith('.jpg'))]
@@ -416,7 +417,7 @@ def get_connection_string():
     pass
 
 def get_test_connection_string():
-    connection = create_engine("postgresql+psycopg://wcd:chatbot@localhost:5432/vector_db", echo=True)
+    connection = "postgresql://wcd:chatbot@localhost:5432/vector_db"
     return connection
 
 ###------------------------------------------------------------

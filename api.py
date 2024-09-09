@@ -9,5 +9,4 @@ app = FastAPI()
 @app.get("/chatbot")
 def response(query: Annotated[str, Body]):
   response = qa_ENSEM_Run(query, llm = llm, db = db)
-  #response = "hello world, I am wcd chatbot, this is your question: " + query
   return {"response": response}

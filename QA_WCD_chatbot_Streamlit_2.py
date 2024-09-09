@@ -1,13 +1,8 @@
 
 from dotenv import load_dotenv
 from data_pipeline import embed_chunks, get_connection_string, get_test_connection_string, load_documents
-import streamlit as st
-from langchain_core.prompts.chat import ChatPromptTemplate
-from langchain_core.output_parsers.string import StrOutputParser
-from langchain_core.runnables.config import RunnableConfig
 #Below is deprecated, need to use langchain_huggingface.llms.huggingface_endpoint.HuggingFaceEndpoint
 from langchain_huggingface import HuggingFaceEndpoint
-import asyncio
 import numpy as np
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -17,7 +12,7 @@ from langchain_community.retrievers import BM25Retriever
 
 import os
 
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from langchain.chains.retrieval_qa.base import RetrievalQA
 
@@ -25,6 +20,7 @@ from vector_database import VectorDatabase
 
 
 def Find_all_hierarchical_headers_path(documents = None):
+    #Maybe could use SQLAlchemy
     hierarchical_headers = []
     if not documents:
         documents = load_documents()
@@ -104,10 +100,10 @@ def contains_word(query, word):
 ###-----------------------------------------------------------
 
 def fined_closest_header(query, documents = None):
-
+    #Maybe can use preprocessing
     if contains_word(query, "tuition"):
-
-        hierarchical_headers=[
+        #Should this be headers instead of hierarchical headers?
+        headers=[
             'This content belongs to the following hierarchical headers of the tuition path; H1: Business Intelligence Bootcamp - WeCloudData -> H5: Tuition Fee',
             'This content belongs to the following hierarchical headers of the tuition path; H1: Data Science Bootcamp - WeCloudData -> H5: Tuition Fee',
             'This content belongs to the following hierarchical headers of the tuition path; H1: Data Engineering Bootcamp - WeCloudData -> H5: Tuition Fee',
@@ -197,7 +193,6 @@ def qa_ENSEM_Run(query, llm, db):
     current Question: {question}
     Answer: """
 
-
     # Define the QA chain prompt template
     QA_CHAIN_PROMPT = PromptTemplate(
         input_variables=['question', 'context'],
@@ -205,21 +200,21 @@ def qa_ENSEM_Run(query, llm, db):
     )
 
     #We want to get the documents from the database not testing 
-    documents= db.get_by_ids(["*"])
+    #TODO: need to time below
+    documents= db.get_all_documents()
     #replacing below with adding database in the arguments
     # db = setup_database() 
     closest_header = fined_closest_header(query, documents=documents)
-    print(closest_header)
 
     k=6
     mmr1_retriever=db.as_retriever(search_kwargs={"k": k}, search_type = 'mmr')
     sim1_retriever=db.as_retriever(search_kwargs={"k": 2}, search_type = 'similarity')
-    mmr3_retriever=db.as_retriever(search_kwargs={'k': k,'filter': {'hierarchical headers path': f'{closest_header}'}}, search_type = 'mmr')
-    bm25_retriever=db.as_retriever(search_kwargs={"k": 4}, search_type = 'bm25')
+    #Somehting wrong with below
+    mmr3_retriever=db.as_retriever(search_kwargs={'k': k,'filter': {'hierarchical_headers_path': f'{closest_header}'}}, search_type = 'mmr')
     #Below is a bit wierd, since we wanna get documents from the database
     #Why not get the below from as_retriever method
-    #bm25_retriever = BM25Retriever.from_documents(documents)
-    #bm25_retriever.k = 4
+    bm25_retriever = BM25Retriever.from_documents(documents)
+    bm25_retriever.k = 4
     #retriver_context= mmr1_retriever+sim1_retriever+mmr3_retriever+bm25_retriever
 
     ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, mmr1_retriever, sim1_retriever,mmr3_retriever], weights=[0.5,0.5,0.5,0.5])
@@ -230,8 +225,7 @@ def qa_ENSEM_Run(query, llm, db):
     retriver_context3 = mmr1_retriever.invoke(query)
     retriver_context4 = mmr3_retriever.invoke(query)
     retriver_context  = retriver_context1 + retriver_context2 + retriver_context3 + retriver_context4
-    #retriver_context = retriver_context1 
-    print('retriver_context= ',retriver_context )
+    #retriver_context = retriver_context1
 
     qa_ENSEM = RetrievalQA.from_chain_type(llm,
                                     chain_type='stuff',
@@ -244,156 +238,10 @@ def qa_ENSEM_Run(query, llm, db):
     #result1 = qa_Rm.run(question=query, context=adjusted_context)
     result_Ensemble = qa_ENSEM({"query": query, "context":retriver_context })
     response_Ensemble = result_Ensemble['result']  # The chatbot's response
-    #source_documents_Ensemble = result_Ensemble['source_documents']  
-    #print("\nQuestion---->>>",response_Ensemble.split("Question:")[1])
     return response_Ensemble
 
 #st.cache_data.clear()
 #question=questions[0]
 ###-----------------------------------------------------------
-
-# Function to update the history
-def update_history(question, answer):
-    st.session_state.history.append((question, answer))
-    if len(st.session_state.history) > 0:
-        st.session_state.history.pop(0)
-###-----------------------------------------------------------
-# Function to store feedback
-def store_feedback(feedback):
-    # Check if 'feedback' already exists in session_state
-    # If not, then initialize it as an empty list
-    if 'feedback' not in st.session_state:
-        st.session_state['feedback'] = []
-    # Append the feedback to the session state
-    st.session_state.feedback.append(feedback)
-
-    # Here you would implement code to store feedback in S3
-    # For demonstration, we're just printing the session state
-    print(st.session_state['feedback'])
-###-----------------------------------------------------------
-def store_userinfo(user_contact):
-    # Check if 'feedback' already exists in session_state
-    # If not, then initialize it as an empty list
-    if 'user_contact' not in st.session_state:
-        st.session_state['user_contact'] = []
-    # Append the feedback to the session state
-    st.session_state.feedback.append(user_contact)
-
-    # Here you would implement code to store feedback in S3
-    # For demonstration, we're just printing the session state
-    print(st.session_state['user_contact'])
-
-###----------------------------------------------------------
-def main():
-
-    if "runnable" not in st.session_state:
-        model = Setup_llm()
-        prompt = ChatPromptTemplate.from_messages(
-            [
-              (  "system",
-                 """You are an intelligent and very knowledgeable chatbot operating for the site https://weclouddata.com/.
-                    you are called "Weclouddata Chatbot".You answers in the conversation to maintain context and adjust your responses accordingly.
-                    Provide detailed and accurate responses based on the documentation scope. 
-                    Prevent hallucinations or providing unverified information. 
-                    For out-of-scope questions, do not attempt to answer but inform the user that the question is beyond the current scope.
-
-                    When you respond:
-                    - Acknowledge the user's current question and any relevant context from previous interactions.
-                    - Provide a comprehensive answer that covers all aspects of the question based on available documentation.
-                    - Suggest additional information or resources on the topic when relevant.
-                    - Direct the user to relevant links for more information.
-                    - Ask for the user's email if more personalized help or follow-up is needed.
-                    - Encourage further questions or clarifications to keep the conversation interactive.
-                    - Format your response in JSON.
-
-                    If a question is out of scope:
-                    - Inform the user that the question is beyond the current scope of the chatbot,
-                    - Suggest contacting support or visiting the documentation for more information.
-
-                    
-                    Current question: {{question}}
-                    """
-            ),
-            ("human", "{question}"),
-            ]
-        )
-        st.session_state.runnable = prompt | model | StrOutputParser()
-
-        st.session_state.history = []
-
-    # Streamlit app layout
-    st.title("WeCloudData Chatbot System")
-    st.write("Ask any question about WeCloudData and get an accurate and eloquent answer.")
-   
-    # Display the conversation history
-    #for i, (q, a) in enumerate(st.session_state.history):
-        #st.write(f"Q{i+1}: {q}")
-        #st.write(f"A{i+1}: {a}")
-    
-    # Input from the user
-    question = st.text_input("Enter your question:")
-
-    if st.button("Get Answer... "):
-        
-        with st.spinner("Generating response..."):
-            response_placeholder = st.empty()
-
-            # Generate the response
-            async def generate_response():
-                msg = ""
-                async for response in st.session_state.runnable.astream(
-                    {"question": question},
-                    config=RunnableConfig(callbacks=[]),
-                ):
-                        
-                    response_Ens = qa_ENSEM_Run(question)
-                    response=response_Ens.split("Answer:")[1]
-                    msg += response
-                    response_placeholder.write(msg)
-
-                # Update the history after the response is generated
-                # update_history(question, msg)
-
-            #Use asyncio to run the async function
-            asyncio.run(generate_response())
-
-
-    # Feedback section
-    st.write("### Provide Feedback Rate")
-    #feedback = st.selectbox("Please provide your feedback rate (from 1-very good to 5-very bad):", [1, 2, 3, 4, 5])
-
-    feedback_options = {
-    "1. Excellent": 1,
-    "2. Good": 2,
-    "3. Average": 3,
-    "4. Below Average": 4,
-    "5. Poor": 5
-}
-
-    feedback_text = st.selectbox(
-        "Please provide your feedback rate:", 
-        list(feedback_options.keys())
-    )
-
-    feedback_value = feedback_options[feedback_text]
-
-    if st.button("Submit Feedback"):
-        #store_feedback("This is a sample feedback.")
-        store_feedback(feedback_value)
-        st.success("Thank you for your feedback!")
-    
-    
-    # Functionality to review feedback (for demonstration purposes)
-    #if st.button("Review Feedback"):
-    #    st.write("Collected Feedback:")
-    #    for fb in st.session_state.feedback:
-    #        st.write(fb)
-
-    st.write("### For more personalized help or follow-up")
-    user_contact = st.text_input("Please provide your email address:")
-
-    if st.button("Submit your Info"):
-        store_userinfo(user_contact)
-        st.success("Thank you for your info!")
 
 
