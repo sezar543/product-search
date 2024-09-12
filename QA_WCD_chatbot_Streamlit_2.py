@@ -1,5 +1,5 @@
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 from data_pipeline import embed_chunks, get_connection_string, get_test_connection_string, load_documents
 #Below is deprecated, need to use langchain_huggingface.llms.huggingface_endpoint.HuggingFaceEndpoint
 from langchain_huggingface import HuggingFaceEndpoint
@@ -38,12 +38,11 @@ def load_all_hierarchical_headers_path(documents = None):
 
 def Setup_llm():
     # Load environment variables
-    load_dotenv('.env')
-    HUGGINGFACEHUB_API_TOKEN = os.environ["HUGGINGFACEHUB_API_TOKEN"]
-
+    load_dotenv(find_dotenv())
+    api_key = os.environ.get("HUGGINGFACEHUB_API_TOKEN")
     # Set up the LLM from Hugging Face
-    repo_id = 'mistralai/Mistral-7B-Instruct-v0.2'
-    mistral_llm = HuggingFaceEndpoint(repo_id=repo_id, huggingfacehub_api_token = HUGGINGFACEHUB_API_TOKEN, temperature = 0.1, max_new_tokens=500)
+    repo_id = 'mistralai/Mistral-7B-Instruct-v0.3'
+    mistral_llm = HuggingFaceEndpoint(repo_id=repo_id, huggingfacehub_api_token = api_key, temperature = 0.1, max_new_tokens=500)
     llm = mistral_llm
     return llm
 

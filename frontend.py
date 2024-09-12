@@ -1,4 +1,6 @@
 
+import os
+from dotenv import find_dotenv, load_dotenv
 import requests
 from QA_WCD_chatbot_Streamlit_2 import Setup_llm, qa_ENSEM_Run
 
@@ -43,8 +45,10 @@ def store_feedback(feedback):
 
 
 def main():
-
+    #TODO: For some reason huggingface api token is not filled 
+    #load_dotenv(override=True)
     if "runnable" not in st.session_state:
+        load_dotenv(find_dotenv())
         model = Setup_llm()
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -75,6 +79,8 @@ def main():
             ("human", "{question}"),
             ]
         )
+
+        #bitwise operator?
         st.session_state.runnable = prompt | model | StrOutputParser()
 
         st.session_state.history = []
@@ -96,25 +102,19 @@ def main():
         with st.spinner("Generating response..."):
             response_placeholder = st.empty()
             # Generate the response
-            async def generate_response(response_placeholder, question):
+            def generate_response(response_placeholder, question):
               msg = ""
-              async for response in st.session_state.runnable.astream(
-                  {"question": question},
-                  config=RunnableConfig(callbacks=[]),
-                  ):
-
-                response = requests.get(url=backend_url, params={'query': question})
-                response_Ens = response.json()["response"]
-                #response_Ens = qa_ENSEM_Run(question)
-                response=response_Ens.split("Answer:")[1]
-                msg += response
-                response_placeholder.write(msg)
+              response = requests.get(url=backend_url, params={'query': question})
+              response = response.json()["response"]
+              #response_Ens = qa_ENSEM_Run(question)
+              msg += response
+              response_placeholder.write(msg)
 
               # Update the history after the response is generated
               # update_history(question, msg)
 
             #Use asyncio to run the async function
-            asyncio.run(generate_response(response_placeholder=response_placeholder, question=question))
+            generate_response(response_placeholder=response_placeholder, question=question)
 
 
     # Feedback section
@@ -165,4 +165,7 @@ def update_history(question, answer):
         st.session_state.history.pop(0)
 
 if __name__ == "__main__":
+  #load_dotenv(override=True)
+  #print("The huggingface api token is:")
+  #print(os.environ["HUGGINGFACEHUB_API_TOKEN"])
   main()
