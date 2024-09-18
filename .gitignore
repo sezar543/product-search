@@ -2,3 +2,4 @@
 /model/__pycache__
 model.pkl
 .env
+create_endpoint.py

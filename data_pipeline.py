@@ -7,6 +7,8 @@ import requests
 from vector_database import VectorDatabase
 
 
+###-----------------------------------------------------------
+
 def embed_chunks():
     # Define the path to the pre-trained model you want to use
     modelPath = "sentence-transformers/all-MiniLM-L6-v2"   #384
@@ -27,7 +29,7 @@ def embed_chunks():
     return embeddings
 
 
-def Extract_urls(sitemap_url):
+def Extract_urls(sitemap_url): 
    response = requests.get(sitemap_url)
    sitemap_xml = response.content
 
@@ -58,16 +60,15 @@ def load_all_urls():
     #print('list_URLsforXMLs=',list_URLsforXMLs)  #24 list of url related to 24 xmls
 
     # courses and course-package
-    #Below is for testing 
-    all_urls=list_URLsforXMLs[4]+ list_URLsforXMLs[8]
+    all_urls=list_URLsforXMLs[4]+ list_URLsforXMLs[8] 
 
-    #Uncomment below for use in production
+    # For all URLs
     #all_urls=[]
     #for URLsforXML in list_URLsforXMLs:
-       #all_urls += URLsforXML
+    #    all_urls += URLsforXML
 
-    print('all_urls = ',all_urls)
-    print(len(all_urls),"\n")
+    #print('all_urls = ',all_urls)
+    #print(len(all_urls),"\n")
 
     def filter_image_urls(urls):
         filtered_urls = [url for url in urls if not (url.endswith('.jpeg') or url.endswith('.png') or url.endswith('.webp') or url.endswith('.gif') or url.endswith('.svg') or  url.endswith('.jpg'))]
@@ -81,7 +82,6 @@ def load_all_urls():
 ###-----------------------------------------------------------
 def load_clean_text_from_url(url):
   # Send a GET request to the webpage
-  #Makes the pipeline take way too long, so in testing, use the truncated version
   response = requests.get(url)
 
   # Check if the request was successful
@@ -205,10 +205,10 @@ def find_hierarchical_header_Paths(hierarchy,headers_text):
         if path_to_target:
            path_as_string = " -> ".join(["{}: {}".format(level, text) for level, text in path_to_target])
            Hierarchical_header_Path = f"This content belongs to the following hierarchical headers path; {path_as_string} "
-           Hierarchical_header_Paths.append(Hierarchical_header_Path)
+           Hierarchical_header_Paths.append(Hierarchical_header_Path)  
         else:
            print("Header '{}' not found".format(target_header))
-
+    
     #print(len(Hierarchical_header_Paths),Hierarchical_header_Paths[20])
     return Hierarchical_header_Paths
 
@@ -231,7 +231,6 @@ def find_amount_of_dollars(headers, path):
 
     return Tuition
 
-
 ###-----------------------------------------------------------
 class Document:
     def __init__(self, page_content, metadata):
@@ -240,7 +239,6 @@ class Document:
 
     def __repr__(self):
         return f"Document(page_content={self.page_content!r}, metadata={self.metadata!r})"
-
 
 ###-----------------------------------------------------------
 def is_word_at_start(text, word):
@@ -258,7 +256,7 @@ def split_text_by_headers(text, headers):
                 sections.append(f" {text[last_pos:pos].strip()}")
             last_pos = pos
     sections.append(f" {text[last_pos:].strip()}")
-
+    
     return sections
 
 
@@ -275,7 +273,7 @@ def load_headers_creat_metadata(url):
 
     # Extracting all headers and content
     headers = soup.find_all(['h1', 'h2', 'h3', 'h4','h5'])
-
+    
     for header in headers:
         header_tag = header.name.upper()
         header_text = header.get_text(strip=True)
@@ -293,7 +291,7 @@ def load_headers_creat_metadata(url):
             if next_sibling.name:
                 content += next_sibling.get_text(strip=True) + " "
             next_sibling = next_sibling.find_next_sibling()
-
+        
         data.append({
             'url': url,
             'path_segment': path_segment,
@@ -318,12 +316,12 @@ def load_headers_creat_metadata(url):
     print(df.shape)
 
     text= load_clean_text_from_url(url)
-
+    
     #print('URL_link:', url)
     #print("  ")
     #print(len(headers_final),'h=',headers_final)
     #print("<<<<---------->>>>")
-
+    
     # Create hierarchy headers tree
     hierarchy_headers_tree = create_hierarchy_header(headers_final2)
     #print_tree(hierarchy_headers_tree)
@@ -344,7 +342,7 @@ def load_headers_creat_metadata(url):
     metadata_documents = []
     for i, section in enumerate(result):
         if is_word_at_start(section, headers_text[i]):
-
+                       
            #section_extention = f" URL :: {url} \n Title :: {page_title} \n Link :: {path_segment}\n Section {i} ::{Hierarchical_header_Paths[i]} >> {headers_text[i]} >>>\n {section} "
             section_extention = f"URL :: {url} >> Section {i} :: {Hierarchical_header_Paths[i]} >> {headers_text2[i]} >>> {section} "
             Hierarchical_header_Paths_S = Hierarchical_header_Paths[i]
@@ -356,7 +354,7 @@ def load_headers_creat_metadata(url):
             header_text_S = headers_text2[i+1]
     #print(section_extention) 
     #print(">>>>>>>>>\n")
-
+    
         metadata_documents.append(Document(
                     #page_content = section,
                     page_content = section_extention,
@@ -373,7 +371,7 @@ def load_headers_creat_metadata(url):
                     #page_content=f"Title :: {page_title}, Link :: {path_segment}, Section {i} :: {headers[i]} >>> {section} ",
                     metadata={"URL" : url , "Title" : page_title , "hierarchical headers path" : header_fee_path , "Header" : " Tuition Fee " , "Section number" :i+1 }
                     ))
-
+    
     #print("i",i)
     #print("meta",len(metadata_documents))
     #print ('header=',result[0])
@@ -400,6 +398,8 @@ def load_documents():
     return output
 
 
+###-----------------------------------------------------------
+
 def Create_chunks():
     # Create an instance of the RecursiveCharacterTextSplitter class with specific parameters.
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=300)
@@ -407,6 +407,7 @@ def Create_chunks():
     # 'data' holds the text you want to split, split the text into documents using the text splitter.
     documents= load_documents()
     chunks = text_splitter.split_documents(documents)
+    #print(len(chunks))
     return chunks
 
 

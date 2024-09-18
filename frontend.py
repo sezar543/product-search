@@ -47,43 +47,8 @@ def store_feedback(feedback):
 def main():
     #TODO: For some reason huggingface api token is not filled 
     #load_dotenv(override=True)
-    if "runnable" not in st.session_state:
-        load_dotenv(find_dotenv())
-        model = Setup_llm()
-        prompt = ChatPromptTemplate.from_messages(
-            [
-              (  "system",
-                 """You are an intelligent and very knowledgeable chatbot operating for the site https://weclouddata.com/.
-                    you are called "Weclouddata Chatbot".You answers in the conversation to maintain context and adjust your responses accordingly.
-                    Provide detailed and accurate responses based on the documentation scope. 
-                    Prevent hallucinations or providing unverified information. 
-                    For out-of-scope questions, do not attempt to answer but inform the user that the question is beyond the current scope.
 
-                    When you respond:
-                    - Acknowledge the user's current question and any relevant context from previous interactions.
-                    - Provide a comprehensive answer that covers all aspects of the question based on available documentation.
-                    - Suggest additional information or resources on the topic when relevant.
-                    - Direct the user to relevant links for more information.
-                    - Ask for the user's email if more personalized help or follow-up is needed.
-                    - Encourage further questions or clarifications to keep the conversation interactive.
-                    - Format your response in JSON.
-
-                    If a question is out of scope:
-                    - Inform the user that the question is beyond the current scope of the chatbot,
-                    - Suggest contacting support or visiting the documentation for more information.
-
-                    
-                    Current question: {{question}}
-                    """
-            ),
-            ("human", "{question}"),
-            ]
-        )
-
-        #bitwise operator?
-        st.session_state.runnable = prompt | model | StrOutputParser()
-
-        st.session_state.history = []
+    #st.session_state.history = []
 
     # Streamlit app layout
     st.title("WeCloudData Chatbot System")
@@ -165,7 +130,4 @@ def update_history(question, answer):
         st.session_state.history.pop(0)
 
 if __name__ == "__main__":
-  #load_dotenv(override=True)
-  #print("The huggingface api token is:")
-  #print(os.environ["HUGGINGFACEHUB_API_TOKEN"])
   main()

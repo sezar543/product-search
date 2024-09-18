@@ -1,5 +1,6 @@
 from typing import Annotated
-from QA_WCD_chatbot_Streamlit_2 import load_llm, qa_ENSEM_Run, setup_database
+from QA_WCD_chatbot_Streamlit_2 import setup_database, load_llm, qa_ENSEM_Run
+from app_chatbot_feedback7 import qa_ENSEM_Run_SelfCheck
 from fastapi import FastAPI, Body
 
 db  = setup_database()
@@ -8,5 +9,5 @@ app = FastAPI()
 
 @app.get("/chatbot")
 def response(query: Annotated[str, Body]):
-  response = qa_ENSEM_Run(query, llm = llm, db = db)
-  return {"response": response}
+  response = qa_ENSEM_Run_SelfCheck(query, llm = llm, db = db)
+  return {"response": response[0], "check": response[1]}

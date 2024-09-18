@@ -20,7 +20,6 @@ from vector_database import VectorDatabase
 
 
 def Find_all_hierarchical_headers_path(documents = None):
-    #Maybe could use SQLAlchemy
     hierarchical_headers = []
     if not documents:
         documents = load_documents()
@@ -36,14 +35,15 @@ def load_all_hierarchical_headers_path(documents = None):
 
 ###-----------------------------------------------------------
 
-def Setup_llm():
+def Setup_llm(mode="test"):
     # Load environment variables
     load_dotenv(find_dotenv())
     api_key = os.environ.get("HUGGINGFACEHUB_API_TOKEN")
     # Set up the LLM from Hugging Face
     repo_id = 'mistralai/Mistral-7B-Instruct-v0.3'
-    mistral_llm = HuggingFaceEndpoint(repo_id=repo_id, huggingfacehub_api_token = api_key, temperature = 0.1, max_new_tokens=500)
-    llm = mistral_llm
+    #repo_id = 'mistralai/Mistral-7B-Instruct-v0.2'
+    if mode == "test":
+        llm = HuggingFaceEndpoint(repo_id=repo_id, huggingfacehub_api_token = api_key, temperature = 0.1, max_new_tokens=500)
     return llm
 
 def load_llm():
