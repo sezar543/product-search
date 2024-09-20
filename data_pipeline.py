@@ -430,6 +430,12 @@ def add_documents_to_database(db: VectorDatabase):
     documents = load_documents()
     return db.add_documents(documents)
 
+def setup_database(test = True):
+    embedding = embed_chunks()
+    connection_string = get_test_connection_string() if test else get_connection_string()
+    db = VectorDatabase(embedding = embedding, connection_string = connection_string)
+    return db
+
 if __name__ == '__main__':
     embeddings = embed_chunks()
     # connection_string = get_connection_string()

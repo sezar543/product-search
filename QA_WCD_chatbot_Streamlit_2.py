@@ -17,123 +17,11 @@ from langchain.chains import RetrievalQA
 from langchain.chains.retrieval_qa.base import RetrievalQA
 
 from vector_database import VectorDatabase
+from qa_responder import QAResponder
 
-
-def Find_all_hierarchical_headers_path(documents = None):
-    hierarchical_headers = []
-    if not documents:
-        documents = load_documents()
-    for doc in documents:
-       hierarchical_headers.append(doc.metadata['hierarchical headers path'])
-    return hierarchical_headers
-
-
-def load_all_hierarchical_headers_path(documents = None):
-    output = Find_all_hierarchical_headers_path(documents)  # Replace with your actual function
-    return output
-###-----------------------------------------------------------
-
-###-----------------------------------------------------------
-
-def Setup_llm(mode="test"):
-    # Load environment variables
-    load_dotenv(find_dotenv())
-    api_key = os.environ.get("HUGGINGFACEHUB_API_TOKEN")
-    # Set up the LLM from Hugging Face
-    repo_id = 'mistralai/Mistral-7B-Instruct-v0.3'
-    #repo_id = 'mistralai/Mistral-7B-Instruct-v0.2'
-    if mode == "test":
-        llm = HuggingFaceEndpoint(repo_id=repo_id, huggingfacehub_api_token = api_key, temperature = 0.1, max_new_tokens=500)
-    return llm
-
-def load_llm():
-    output = Setup_llm()  # Replace with your actual function
-    return output
-
- #st.cache_data.clear()
-###-----------------------------------------------------------
-
-def all_questions ():
-   questions = [ 
-        "Who are the instructors for the Data Engineering Bootcamp?",   # 0
-        "What is the weekly schedule for the Data Engineering Bootcamp?",# 1
-        "What is the tuition for the Data Engineering Bootcamp",        # 2
-        "Is there a self paced data engineering bootcamp?",             # 3
-        "Are there any pre-requisites for enrolling in the Data Engineering Bootcamp?",# 4
-        "Can students participate in live sessions during the self paced courses?",    # 5
-        "What kind of mentorship is offered in the Data Science Bootcamp?",            # 6
-        "What kind of projects are included in the AI Course: NLP/LLM?",               # 7
-        "What are the differences between the Data Science with Python course and the Applied Machine Learning course?",# 8
-        "What kind of real-world applications are included in the Data Engineering curriculum?", # 9
-        "What kind of career support does WeCloudData offer to its students?",                   # 10
-        "What are the main differences between self paced courses and bootcamp programs at WeCloudData?",# 11
-        "What is the format of the TA support in self paced courses?",# 12
-        "What is the duration of the Business Intelligence Bootcamp?",# 13
-        "What is the focus of the DevOps Engineering Bootcamp?",      # 14
-        "Who are the instructors for the Data Science Bootcamp?",     # 15
-        "Who are the instructors for the Machine Learning Engineering Bootcamp?",   # 16
-        "What is the weekly schedule for the Data Science Bootcamp",                # 17
-        "What is the weekly schedule for the Machine Learning Engineering Bootcamp",# 18
-        "What is the tuition for the Data Science Bootcamp",    # 19
-        "What is the tuition for the Machine Learning Bootcamp",# 20
-        "Are there any pre-requisites for enrolling in the Data Science Bootcamp?", #21
-        "Are there any pre-requisites for the Machine Learning Bootcamp",           #22
-        "What kind of mentorship is offered in the Data Engineering Bootcamp?",     #23
-        "What kind of real-world applications are included in the Data Science curriculum?",     # 24
-        "What kind of real-world applications are included in the Machine Learning curriculum?"]
-         # 25
-   query = questions[0]
-   return query
-###-----------------------------------------------------------
-
-def contains_word(query, word):
-    # Convert both the query and word to lowercase to make the check case-insensitive
-    query_lower = query.lower()
-    word_lower = word.lower()
-    
-    # Check if the word is in the query
-    if word_lower in query_lower.split():
-        return True
-    else:
-        return False
-###-----------------------------------------------------------
-
-def fined_closest_header(query, documents = None):
-    #Maybe can use preprocessing
-    if contains_word(query, "tuition"):
-        #Should this be headers instead of hierarchical headers?
-        headers=[
-            'This content belongs to the following hierarchical headers of the tuition path; H1: Business Intelligence Bootcamp - WeCloudData -> H5: Tuition Fee',
-            'This content belongs to the following hierarchical headers of the tuition path; H1: Data Science Bootcamp - WeCloudData -> H5: Tuition Fee',
-            'This content belongs to the following hierarchical headers of the tuition path; H1: Data Engineering Bootcamp - WeCloudData -> H5: Tuition Fee',
-            'This content belongs to the following hierarchical headers of the tuition path; H1: Machine Learning Engineering Bootcamp - WeCloudData -> H5: Tuition Fee']
-
-    # List of headers
-    headers = load_all_hierarchical_headers_path(documents)
-
-    # Combine headers and query into a single list
-    docs = headers + [query]
-
-    # Vectorize the documents
-    vectorizer = TfidfVectorizer().fit_transform(docs)
-    vectors = vectorizer.toarray()
-
-    # Compute cosine similarity between query and each header
-    cosine_similarities = cosine_similarity(vectors[-1].reshape(1, -1), vectors[:-1]).flatten()
-
-    # Find the index of the closest header
-    closest_header_index = np.argmax(cosine_similarities)
-
-    # Get the closest header
-    closest_header = headers[closest_header_index]
-    #print(type(closest_header),closest_header)
-    return closest_header
-
-def setup_database(test = True):
-    embedding = embed_chunks()
-    connection_string = get_test_connection_string() if test else get_connection_string()
-    db = VectorDatabase(embedding = embedding, connection_string = connection_string)
-    return db
+class WCDChatbotV2(QAResponder):
+    def qa_ENSEM_Run_SelfCheck(query):
+        return qa_ENSEM_Run(query, llm = self.llm, db = self.db), ""
 
 ###-----------------------------------------------------------
 def qa_ENSEM_Run(query, llm, db):
@@ -238,9 +126,5 @@ def qa_ENSEM_Run(query, llm, db):
     result_Ensemble = qa_ENSEM({"query": query, "context":retriver_context })
     response_Ensemble = result_Ensemble['result']  # The chatbot's response
     return response_Ensemble
-
-#st.cache_data.clear()
-#question=questions[0]
-###-----------------------------------------------------------
 
 
