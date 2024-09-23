@@ -154,14 +154,21 @@ templateA = """ Given the question that asks {question}, evaluate the response t
     """
 
 def Setup_llm(mode="test"):
-    # Load environment variables
-    load_dotenv(find_dotenv())
-    api_key = os.environ.get("HUGGINGFACEHUB_API_TOKEN")
-    # Set up the LLM from Hugging Face
-    repo_id = 'mistralai/Mistral-7B-Instruct-v0.3'
-    #repo_id = 'mistralai/Mistral-7B-Instruct-v0.2'
-    if mode == "test":
-        llm = HuggingFaceEndpoint(repo_id=repo_id, huggingfacehub_api_token = api_key, temperature = 0.1, max_new_tokens=500)
+    _ = load_dotenv(find_dotenv())
+    api_key = os.environ['OPENAI_API_KEY']
+    
+    # 1- model one
+    #model_name = 'gpt-3.5-turbo'       
+    #OPENAI_MODEL_3.5Turbo = 'gpt-3.5-turbo'
+    #llm = ChatOpenAI(model_name=model_name, temperature= 0.0)
+
+    # 2- model two
+    model_name = "gpt-4o-mini"
+    OPENAI_MODEL_4oMini = "gpt-4o-mini"
+    llm = ChatOpenAI(model=OPENAI_MODEL_4oMini, temperature=0, max_tokens=500)
+    
+    print('Model_Name ------>>>>>  ',model_name)
+
     return llm
 
 def load_llm():
@@ -309,5 +316,9 @@ class QAResponder():
   def set_templates(template = None, templateA = None):
     if template:
       self.template = template
+      self.QA_CHAIN_PROMPT = PromptTemplate(
+        input_variables=['question', 'context'],
+        template = template
+      )
     if templateA:
       self.templateA = templateA
