@@ -1,11 +1,12 @@
 from typing import Annotated
 from qa_responder import load_llm, QAResponder
+from QA_WCD_chatbot_Streamlit_Openai_4 import WCDChatbotV4
 from data_pipeline import setup_database
 from fastapi import FastAPI, Body
 
 db  = setup_database()
 llm = load_llm()
-responder = QAResponder(llm = llm, db = db)
+responder = WCDChatbotV4(llm = llm, db = db)
 app = FastAPI()
 
 @app.get("/chatbot")

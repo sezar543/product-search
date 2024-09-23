@@ -36,11 +36,10 @@ from langchain_core.documents.base import Document
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain.chains import RetrievalQA
-from langchain.chains.retrieval_qa.base import RetrievalQA
 
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering, AutoModelForSequenceClassification , pipeline   #AutoModel
 from sentence_transformers import SentenceTransformer
-
+from langchain_openai import ChatOpenAI
 
 template = """You are an intelligent and professional chatbot named "WeCloudData Chatbot." Your primary task is to generate thorough and accurate answers strictly based on the provided context. 
     Your responses should be structured, logical, and tailored to the question's needs, enhancing the user's understanding of WeCloudData's offerings. 
@@ -288,7 +287,10 @@ class QAResponder():
                                     return_source_documents=True,
                                     chain_type_kwargs={"prompt": self.QA_CHAIN_PROMPT}
                                     )
+    #question_answer_chain = create_stuff_documents_chain(llm, prompt)
+    #chain = create_retrieval_chain(retriever, question_answer_chain)
 
+    #chain.invoke({"input": query})
 
     #result1 = qa_Rm.run(question=query, context=adjusted_context)
     result_Ensemble = qa_ENSEM({"query": query, "context":retriver_context })
