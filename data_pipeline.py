@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pandas as pd
 from langchain_core.documents import Document
@@ -345,7 +344,7 @@ def load_headers_creat_metadata(url):
                     #page_content = section,
                     page_content = section_extention,
                     #page_content=f"Title :: {page_title}, Link :: {path_segment}, Section {i} :: {headers[i]} >>> {section} ",
-                    metadata={"URL" : url, "Title" : page_title, "hierarchical headers path" : Hierarchical_header_Paths_S , "Header" : header_text_S , "Section number" :i }
+                    metadata={"URL" : url, "Title" : page_title, "hierarchical_headers_path" : Hierarchical_header_Paths_S , "Header" : header_text_S , "Section_number" :i }
                     ))
 
 
@@ -355,7 +354,7 @@ def load_headers_creat_metadata(url):
                     #page_content = section,
                     page_content = f"URL :: {url} >> Section {i+1} :: {header_fee_path} >> Tuition Fee  >>> {Tuition} ",
                     #page_content=f"Title :: {page_title}, Link :: {path_segment}, Section {i} :: {headers[i]} >>> {section} ",
-                    metadata={"URL" : url , "Title" : page_title , "hierarchical headers path" : header_fee_path , "Header" : " Tuition Fee " , "Section number" :i+1 }
+                    metadata={"URL" : url , "Title" : page_title , "hierarchical_headers_path" : header_fee_path , "Header" : " Tuition Fee " , "Section_number" :i+1 }
                     ))
     
     #print("i",i)

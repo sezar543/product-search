@@ -1,0 +1,75 @@
+[Document(metadata={'URL': 'https://weclouddata.com/courses/online/data-engineering-bootcamp-part-time/', 'Title': 'Data Engineering Bootcamp 
+- WeCloudData', 'Header': 'FAQ', 'Section_number': 57, 'hierarchical_headers_path': 'This content belongs to the following hierarchical 
+headers path; H1: Data Engineering Bootcamp -> H2: FAQ '}, page_content='data lakehouse engineering. These courses can be taken as individual 
+short courses. You get a much better deal by taking the Bootcamp which includes not only all 3 courses but also the career service. How much 
+machine learning is involved? Data engineers don’t need to have extensive knowledge of machine learning. However, data engineers work closely 
+with data scientists and analysts. Understanding the high-level DS/ML workflow will be very useful. WeCloudData provides Open Courses that 
+allow data engineers to learn more about data science and machine learning. What are the lab activities? Is attendance mandatory? We encourage 
+students to attend all lab sessions, but it is not mandatory. Students will finish a mini project during the labs by following the live 
+instructions provided by teaching assistants. Students can watch the lab recordings if they missed it. How many projects are offered and what 
+are those? Students will complete three big end-to-end projects during the bootcamp. The three capstone'), Document(metadata={'URL': 
+'https://weclouddata.com/courses/us-online/big-data-for-data-scientist/', 'Title': 'Big Data for Data Scientists - WeCloudData', 'Header': 
+'FAQ', 'Section_number': 27, 'hierarchical_headers_path': 'This content belongs to the following hierarchical headers path; H1: Big Data for 
+Data Scientists -> H2: FAQ '}, page_content="to come up with your original ideas, create the services in AWS, load big data into the data 
+lake, build a machine learning pipeline using Spark ML to solve a ML big data challenge. At the end of the project, you will be presenting 
+your work to experienced instructors and the entire class to get feedback. What's the difference between this course and the Big Data Engineer 
+course in the data engineering program? While both are big data related courses, this course is for data scientists who want to scale data 
+science and machine learning solutions. It is not a course for data engineers who don’t work with machine learning. Will I get project 
+mentoring and help during this course? Yes. We have labs on a weekly basis and students work with lab instructors and project mentors when 
+they work on the capstone projects. Do I need a top-spec computer in order to take this course? No, most of the “big data” processing in this 
+course is done in the cloud. From day one students learn how to work with AWS and as long as"), Document(metadata={'URL': 
+'https://weclouddata.com/course-package/data-engineering-bootcamp-ca/', 'Title': 'Data Engineering Bootcamp - WeCloudData', 'Header': ' 
+Tuition Fee ', 'Section_number': 39, 'hierarchical_headers_path': 'This content belongs to the following hierarchical headers of the tuition 
+path; H1: Data Engineering Bootcamp - WeCloudData -> H5: Tuition Fee'}, page_content='URL :: 
+https://weclouddata.com/course-package/data-engineering-bootcamp-ca/ >> Section 39 :: This content belongs to the following hierarchical 
+headers of the tuition path; H1: Data Engineering Bootcamp - WeCloudData -> H5: Tuition Fee >> Tuition Fee  >>>'), Document(metadata={'URL': 
+'https://weclouddata.com/courses/us-online/mlops-engineering/', 'Title': 'MLOps Engineering - WeCloudData', 'Header': 'FAQ', 'Section_number': 
+25, 'hierarchical_headers_path': 'This content belongs to the following hierarchical headers path; H1: MLOps Engineering -> H2: FAQ '}, 
+page_content='self-paced ML courses or other data science bootcamps as well. Typically learners come from 1. Data scientist who want to 
+harness the MLE and MLOps skills. 2. Software engineers who have machine learning knowledge 3. DevOps engineers who are interested in 
+operating ML systems 4. New graduates from computer science or computer engineering who have taken ML courses in school or who can complete 
+the pre-course materials on their own 5. Career switchers who take this course as part of the ML Engineering Bootcamp. 6. Non-tech background 
+learners who have completed WeCloudData’s AI short courses as a pre-requisites. 7. PhD graduates who want to fast track their job search and 
+meet the technical pre-requisites WeCloudData is the leading data science and AI academy. Our blended learning courses have helped thousands 
+of learners and many enterprises make successful leaps in their data journeys.'), Document(metadata={'URL': 
+'https://weclouddata.com/courses/online/business-intelligence-bootcamp/', 'Title': 'Business Intelligence Bootcamp - WeCloudData', 'Header': 
+'Learn from the best instructors & TA', 'Section_number': 19, 'hierarchical_headers_path': 'This content belongs to the following hierarchical 
+headers path; H1: Business Intelligence Bootcamp -> H2: LEARNING EXPERIENCE -> H4: Learn from the best instructors & TA '}, page_content='URL 
+:: https://weclouddata.com/courses/online/business-intelligence-bootcamp/ >> Section 19 :: This content belongs to the following hierarchical 
+headers path; H1: Business Intelligence Bootcamp -> H2: LEARNING EXPERIENCE -> H4: Learn from the best instructors & TA  >> Learn from the 
+best instructors & TA >>>  Learn from the best instructors & TA We’ve brought together a team of highly skilled and experienced instructors to 
+help you learn effectively. Our instructors have a passion for teaching and a wealth of real-world experiences in their respective fields, so 
+you can be confident that you’re learning from the best. Elvis Liang Business System Analyst, The Stars Group Elvis has Bachelor’s and 
+Master’s degrees in Chemical Engineering. After in-depth exploration on career path of chemical engineering, Elvis found his passion in 
+business and data analysis, and successfully switched his career to an online gaming industry working as a Business System Analyst at 
+PokerStars (a brand of Flutter International). He'), Document(metadata={'URL': 
+'https://weclouddata.com/courses/online/data-science-bootcamp/', 'Title': 'Data Science Bootcamp - WeCloudData', 'Header': 'Learn from the 
+best instructors & TA', 'Section_number': 19, 'hierarchical_headers_path': 'This content belongs to the following hierarchical headers path; 
+H1: Data Science Bootcamp -> H2: LEARNING EXPERIENCE -> H4: Learn from the best instructors & TA '}, page_content='URL :: 
+https://weclouddata.com/courses/online/data-science-bootcamp/ >> Section 19 :: This content belongs to the following hierarchical headers 
+path; H1: Data Science Bootcamp -> H2: LEARNING EXPERIENCE -> H4: Learn from the best instructors & TA  >> Learn from the best instructors & 
+TA >>>  Learn from the best instructors & TA We’ve brought together a team of highly skilled and experienced instructors to help you learn 
+effectively. Our instructors have a passion for teaching and a wealth of real-world experiences in their respective fields, so you can be 
+confident that you’re learning from the best. Adam Xing Data Science Program Manager @ WeCloudData Adam Xing is the Data Science Program 
+Manager at WeCloudData. Adam graduated with a bachelor’s degree in economics. He has lots of experience working with high-tech, retail, 
+e-commerce, government, and startups. Adam has a strong passion for data science and engineering, and loves helping people become better 
+learners, guiding them to solve challenging'), Document(metadata={'URL': 
+'https://weclouddata.com/course-package/data-engineering-bootcamp-us/', 'Title': 'Data Engineering Bootcamp - WeCloudData', 'Header': ' 
+Tuition Fee ', 'Section_number': 41, 'hierarchical_headers_path': 'This content belongs to the following hierarchical headers of the tuition 
+path; H1: Data Engineering Bootcamp - WeCloudData -> H5: Tuition Fee'}, page_content='URL :: 
+https://weclouddata.com/course-package/data-engineering-bootcamp-us/ >> Section 41 :: This content belongs to the following hierarchical 
+headers of the tuition path; H1: Data Engineering Bootcamp - WeCloudData -> H5: Tuition Fee >> Tuition Fee  >>>  7000  USD   ,  8000  USD   ,  
+12000  USD'), Document(metadata={'URL': 'https://weclouddata.com/courses/online/data-engineering-bootcamp-part-time/', 'Title': 'Data 
+Engineering Bootcamp - WeCloudData', 'Header': ' Tuition Fee ', 'Section_number': 67, 'hierarchical_headers_path': 'This content belongs to 
+the following hierarchical headers of the tuition path; H1: Data Engineering Bootcamp - WeCloudData -> H5: Tuition Fee'}, page_content='URL :: 
+https://weclouddata.com/courses/online/data-engineering-bootcamp-part-time/ >> Section 67 :: This content belongs to the following 
+hierarchical headers of the tuition path; H1: Data Engineering Bootcamp - WeCloudData -> H5: Tuition Fee >> Tuition Fee  >>>')]
+-------------------------------------->>>
+source_URLs = 
+ ['https://weclouddata.com/courses/online/data-engineering-bootcamp-part-time/', 
+'https://weclouddata.com/courses/us-online/big-data-for-data-scientist/', 
+'https://weclouddata.com/course-package/data-engineering-bootcamp-ca/', 'https://weclouddata.com/courses/us-online/mlops-engineering/', 
+'https://weclouddata.com/courses/online/business-intelligence-bootcamp/', 'https://weclouddata.com/courses/online/data-science-bootcamp/', 
+'https://weclouddata.com/course-package/data-engineering-bootcamp-us/', 
+'https://weclouddata.com/courses/online/data-engineering-bootcamp-part-time/']
+-------------------------------------->>>

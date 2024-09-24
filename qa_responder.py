@@ -192,7 +192,7 @@ class QAResponder():
     if not documents:
         documents = load_documents()
     for doc in documents:
-       hierarchical_headers.append(doc.metadata['hierarchical headers path'])
+       hierarchical_headers.append(doc.metadata['hierarchical_headers_path'])
     return hierarchical_headers
 
   def load_all_hierarchical_headers_path(self, documents = None):
