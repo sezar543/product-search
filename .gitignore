@@ -3,3 +3,6 @@
 model.pkl
 .env
 create_endpoint.py
+api-err.txt
+api-output.txt
+err.txt
