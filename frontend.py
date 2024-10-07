@@ -71,7 +71,8 @@ def main():
               msg = ""
               response = requests.get(url=backend_url, params={'query': question})
               response = response.json()["response"]
-              #response_Ens = qa_ENSEM_Run(question)
+              response = response[response.index("{")+1:response_Ens.rindex("}")].strip()
+              response = response_Ens.split("Answer": )[1]
               msg += response
               response_placeholder.write(msg)
 
