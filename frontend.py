@@ -72,7 +72,7 @@ def main():
               response = requests.get(url=backend_url, params={'query': question})
               response = response.json()["response"]
               response = response[response.index("{")+1:response_Ens.rindex("}")].strip()
-              response = response_Ens.split("Answer": )[1]
+              response = response.split("Answer": )[1]
               msg += response
               response_placeholder.write(msg)
 
