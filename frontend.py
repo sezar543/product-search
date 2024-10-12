@@ -2,7 +2,6 @@
 import os
 from dotenv import find_dotenv, load_dotenv
 import requests
-from QA_WCD_chatbot_Streamlit_2 import Setup_llm, qa_ENSEM_Run
 
 
 import streamlit as st
@@ -71,8 +70,9 @@ def main():
               msg = ""
               response = requests.get(url=backend_url, params={'query': question})
               response = response.json()["response"]
-              response = response[response.index("{")+1:response_Ens.rindex("}")].strip()
-              response = response.split("Answer": )[1]
+              response = response[response.index("{")+1:response.rindex("}")].strip()
+              print(response)
+              response = response.split("\"Answer\":")[1]
               msg += response
               response_placeholder.write(msg)
 

@@ -256,18 +256,17 @@ class QAResponder():
     #print(type(closest_header),closest_header)
     return closest_header
 
-  def qa_ENSEM_Run_SelfCheck(self, query):
+  def qa_ENSEM_Run_SelfCheck(self, query, k1 = 6, k2 = 2, k3 = 6, k4 = 4):
 
     documents= self.documents
     closest_header = self.fined_closest_header(query, documents = documents)
 
-    k=6
-    mmr1_retriever=self.db.as_retriever(search_kwargs={"k": k}, search_type = 'mmr')
-    sim1_retriever=self.db.as_retriever(search_kwargs={"k": 2}, search_type = 'similarity')
-    mmr3_retriever=self.db.as_retriever(search_kwargs={'k': k,'filter': {'hierarchical_headers_path': f'{closest_header}'}}, search_type = 'mmr')
+    mmr1_retriever=self.db.as_retriever(search_kwargs={"k": k1}, search_type = 'mmr')
+    sim1_retriever=self.db.as_retriever(search_kwargs={"k": k2}, search_type = 'similarity')
+    mmr3_retriever=self.db.as_retriever(search_kwargs={'k': k3,'filter': {'hierarchical_headers_path': f'{closest_header}'}}, search_type = 'mmr')
     
     bm25_retriever = BM25Retriever.from_documents(documents)
-    bm25_retriever.k = 4
+    bm25_retriever.k = k4
     #retriver_context= mmr1_retriever+sim1_retriever+mmr3_retriever+bm25_retriever
 
     ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, mmr1_retriever, sim1_retriever,mmr3_retriever], weights=[0.5,0.5,0.5,0.5])
@@ -314,8 +313,11 @@ class QAResponder():
     # Assuming `llm` is a function that processes the formatted_template
     check = self.llm(formatted_template)
     return response_Ensemble, check
+  
+  def qa_ENSEM_Run(self, query):
+     return self.qa_ENSEM_Run_SelfCheck(query)
 
-  def set_templates(template = None, templateA = None):
+  def set_templates(self, template = None, templateA = None):
     if template:
       self.template = template
       self.QA_CHAIN_PROMPT = PromptTemplate(
