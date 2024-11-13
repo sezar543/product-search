@@ -1,0 +1,22 @@
+FROM ankane/pgvector
+
+ENV POSTGRES_USER="wcd"
+ENV PGUSER="wcd"
+ENV POSTGRES_PASSWORD="wcd"
+ENV POSTGRES_DB="vector_db"
+
+# # Copy the initialization script to the PostgreSQL entrypoint directory
+# COPY init_db.sh /docker-entrypoint-initdb.d/
+
+# Copy the initialization script to PostgreSQL's entrypoint directory
+COPY db/init_db.sh /docker-entrypoint-initdb.d/
+
+# Make the script executable
+RUN chmod +x /docker-entrypoint-initdb.d/init_db.sh
+
+# # Setting up the correct ownership and permissions for the data directory
+# RUN mkdir -p /var/lib/postgresql/data/pgdata && \
+#     chown -R postgres:postgres /var/lib/postgresql/data/pgdata
+
+# Expose PostgreSQL port
+EXPOSE 5432

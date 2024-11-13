@@ -5,9 +5,18 @@ import pandas as pd
 from langchain_core.documents import Document
 import requests
 from vector_database import VectorDatabase
+from dotenv import load_dotenv
+import os 
 
+load_dotenv()
 
 ###-----------------------------------------------------------
+
+postgres_user = os.getenv("POSTGRES_USER")
+postgres_db = os.getenv("POSTGRES_DB")
+postgres_pass = os.getenv("POSTGRES_PASSWORD")
+db_host = os.getenv("DB_HOST")
+postgres_port = os.getenv("DB_PORT", 5432)
 
 def embed_chunks():
     embeddings = OpenAIEmbeddings()
@@ -404,8 +413,14 @@ def get_connection_string():
     pass
 
 def get_test_connection_string():
-    connection = "postgresql://wcd:chatbot@localhost:5432/vector_db"
-    return connection
+    # postgres_host = 'localhost:5432'
+    # use when apps are run without dockerizations
+    # CONNECTION_STRING = f"postgresql://{postgres_user}:{postgres_pass}@localhost:{postgres_port}/{postgres_db}"
+    # use when apps the project is dockerized
+    CONNECTION_STRING = f"postgresql+psycopg2://{postgres_user}:{postgres_pass}@{db_host}:{postgres_port}/{postgres_db}"
+    # print("*******CONNECTION_STRING = ", CONNECTION_STRING )
+ 
+    return CONNECTION_STRING
 
 ###------------------------------------------------------------
 # Below is the methods needed to load documents and add it to the vector databse

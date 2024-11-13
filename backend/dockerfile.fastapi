@@ -1,0 +1,51 @@
+# dockerfile.fastapi
+
+# Use a lightweight Python image
+FROM python:3.10.7-slim
+
+# Set working directory in the container
+WORKDIR /app
+
+# Update and install pip (Python 3.10.7 is already installed from the base image)
+RUN apt-get update && \
+    apt-get install -y python3-pip libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
+
+# Copy only requirements.txt first to leverage Docker cache for dependencies
+COPY backend/requirements.txt /app/requirements.txt
+
+# Add other packages that fail
+RUN pip install --no-cache-dir --timeout=1000 -r /app/requirements.txt
+
+# Install dependencies
+RUN pip install --no-cache-dir \
+    langchain==0.3.7 \
+    langchain-community==0.3.5 \
+    langchain-core==0.3.15
+RUN pip install --no-cache-dir \
+    langchain-huggingface==0.1.2 \
+    langchain-openai==0.2.5 \
+    langchain-postgres==0.0.12
+RUN pip install --no-cache-dir \
+    openai==1.47.0 \
+    transformers==4.44.2 \
+    sentence-transformers==3.0.1
+RUN pip install --no-cache-dir psycopg2==2.9.9
+
+# Copy the backend code from the backend directory (relative to the root context)
+COPY backend /app
+
+# Copy only specific files from the root directory
+COPY QA_WCD_chatbot_Streamlit_Openai_5.py /app/QA_WCD_chatbot_Streamlit_Openai_5.py
+COPY qa_responder.py /app/qa_responder.py
+COPY data_pipeline.py /app/data_pipeline.py
+COPY vector_database.py /app/vector_database.py
+
+# Expose the FastAPI port
+EXPOSE 8000
+
+# Run FastAPI app
+CMD ["uvicorn", "my_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]

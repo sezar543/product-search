@@ -41,6 +41,10 @@ from transformers import AutoTokenizer, AutoModelForQuestionAnswering, AutoModel
 from sentence_transformers import SentenceTransformer
 from langchain_openai import ChatOpenAI
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 template = """You are an intelligent and professional chatbot named "WeCloudData Chatbot." Your primary task is to generate thorough and accurate answers strictly based on the provided context. 
     Your responses should be structured, logical, and tailored to the question's needs, enhancing the user's understanding of WeCloudData's offerings. 
     Follow the detailed instructions below to maintain consistency and high-quality interactions.
@@ -178,7 +182,8 @@ class QAResponder():
   def __init__(self, llm, db):
     self.llm = llm
     self.db = db
-    self.documents = self.db.get_all_documents()
+    self.documents = None
+    print("self.documents =", self.documents)
     self.template = template
     self.QA_CHAIN_PROMPT = PromptTemplate(
         input_variables=['question', 'context'],
@@ -186,11 +191,20 @@ class QAResponder():
     )
     self.templateA = templateA
 
+  def load_documents_once(self):
+    # Load documents only if not already loaded
+    if self.documents is None:
+        self.documents = load_documents()
+        print("Documents generated and cached.")
+    else:
+        print("Using cached documents.")
+    return self.documents
   
   def Find_all_hierarchical_headers_path(self, documents = None):
     hierarchical_headers = []
     if not documents:
         documents = load_documents()
+        print("Find_all_hierarchical_headers_path/ Documents retrieved:", documents)
     for doc in documents:
        hierarchical_headers.append(doc.metadata['hierarchical_headers_path'])
     return hierarchical_headers
@@ -226,6 +240,7 @@ class QAResponder():
         return False
 
   def fined_closest_header(self, query, documents = None):
+    
     #Maybe can use preprocessing
     if self.contains_word(query, "tuition"):
         #Should this be headers instead of hierarchical headers?
@@ -258,13 +273,29 @@ class QAResponder():
 
   def qa_ENSEM_Run_SelfCheck(self, query, k1 = 6, k2 = 2, k3 = 6, k4 = 4):
 
-    documents= self.documents
+    documents = self.load_documents_once()
+
+    if not documents:
+      print("No documents retrieved; generating new documents.")
+      documents = load_documents() # This generates and caches in `self.documents`
+
+    print("Inside qa_responder.py/ qa_ENSEM_... Documents received: ", documents)
     closest_header = self.fined_closest_header(query, documents = documents)
 
     mmr1_retriever=self.db.as_retriever(search_kwargs={"k": k1}, search_type = 'mmr')
     sim1_retriever=self.db.as_retriever(search_kwargs={"k": k2}, search_type = 'similarity')
     mmr3_retriever=self.db.as_retriever(search_kwargs={'k': k3,'filter': {'hierarchical_headers_path': f'{closest_header}'}}, search_type = 'mmr')
     
+    # print("Inside qa_responder.py:")
+    # if not documents:
+    #     print("No documents retrieved")
+    #     documents = load_documents()
+    #     print("Documents received: ", documents)
+    # else:
+    #     for doc in documents:
+    #         if not hasattr(doc, 'page_content') or not hasattr(doc, 'metadata'):
+    #             print("Document missing page_content or metadata:", doc)
+
     bm25_retriever = BM25Retriever.from_documents(documents)
     bm25_retriever.k = k4
     #retriver_context= mmr1_retriever+sim1_retriever+mmr3_retriever+bm25_retriever
@@ -315,6 +346,7 @@ class QAResponder():
     return response_Ensemble, check
   
   def qa_ENSEM_Run(self, query):
+     print("Inside qa_ENSEM_Run", query)
      return self.qa_ENSEM_Run_SelfCheck(query)
 
   def set_templates(self, template = None, templateA = None):

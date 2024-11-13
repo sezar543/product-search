@@ -1,5 +1,5 @@
 
-from dotenv import find_dotenv, load_dotenv
+# from dotenv import find_dotenv, load_dotenv
 from data_pipeline import embed_chunks, get_connection_string, get_test_connection_string, load_documents
 #Below is deprecated, need to use langchain_huggingface.llms.huggingface_endpoint.HuggingFaceEndpoint
 from langchain_huggingface import HuggingFaceEndpoint
@@ -126,5 +126,3 @@ def qa_ENSEM_Run(query, llm, db):
     result_Ensemble = qa_ENSEM({"query": query, "context":retriver_context })
     response_Ensemble = result_Ensemble['result']  # The chatbot's response
     return response_Ensemble
-
-

@@ -1,0 +1,76 @@
+# docker-compose.yml
+
+services:
+  streamlit:
+    build:
+      context: ./frontend
+      dockerfile: dockerfile.streamlit
+    container_name: streamlit_app
+    ports:
+      - "8501:8501"
+    depends_on:
+      - postgres
+      - fastapi
+    env_file:
+      - .env  
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - BACKEND_URL=${BACKEND_URL}
+    networks:
+      - app_network
+
+  fastapi:
+    build:
+      context: .  # Set to the root directory
+      dockerfile: backend/dockerfile.fastapi
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+    container_name: fastapi_app
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgres
+    env_file:
+      - .env  
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - BACKEND_URL=${BACKEND_URL}
+      - COLLECTION_NAME=${COLLECTION_NAME}
+    networks:
+      - app_network
+
+  postgres:
+    build:
+      context: .
+      dockerfile: db/dockerfile.pgvector
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+volumes:
+  pgdata:
+
+networks:
+  app_network:
+    driver: bridge
